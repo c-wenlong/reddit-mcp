@@ -52,7 +52,5 @@ test_*.py
 *.md
 !README.md
 
-# Lock files (dependencies are installed from requirements.txt)
-uv.lock
-pyproject.toml
+# Note: pyproject.toml and uv.lock are needed by Smithery's build system
 
