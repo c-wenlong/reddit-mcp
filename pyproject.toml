@@ -1,0 +1,11 @@
+[project]
+name = "mcp-startup-ideator"
+version = "0.1.0"
+description = "MCP server for discovering startup ideas and problem spaces on Reddit"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "praw>=7.7.1",
+    "mcp>=1.0.0",
+    "python-dotenv>=1.0.0",
+]

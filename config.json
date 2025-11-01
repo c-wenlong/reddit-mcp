@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "reddit-startup-ideator": {
+      "command": "/Users/kaichen/Desktop/PersonalDevelopment/Internal/TechProjects/mcp-startup-ideator/.venv/bin/python",
+      "args": ["/Users/kaichen/Desktop/PersonalDevelopment/Internal/TechProjects/mcp-startup-ideator/server.py"],
+      "env": {
+        "REDDIT_CLIENT_ID": "RSCqbMxsdxCo7pX_NkNTlA",
+        "REDDIT_CLIENT_SECRET": "t2Xfr_T5v6hMloJyMlVLYR-rTgutAA",
+        "REDDIT_USER_AGENT": "MCP Startup Ideator/1.0"
+      }
+    }
+  }
+}
