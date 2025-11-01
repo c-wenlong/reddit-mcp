@@ -1,0 +1,20 @@
+runtime: python
+target: remote
+
+configSchema:
+  type: object
+  properties:
+    REDDIT_CLIENT_ID:
+      type: string
+      description: Reddit API Client ID
+    REDDIT_CLIENT_SECRET:
+      type: string
+      description: Reddit API Client Secret
+    REDDIT_USER_AGENT:
+      type: string
+      description: Reddit API User Agent
+      default: "MCP Startup Ideator/1.0"
+  required:
+    - REDDIT_CLIENT_ID
+    - REDDIT_CLIENT_SECRET
+
