@@ -61,29 +61,11 @@ REDDIT_USER_AGENT=MCP Startup Ideator/1.0
 
 Add this server to your MCP client configuration. For example, in Claude Desktop, add to `claude_desktop_config.json`:
 
-**If using `uv` (recommended):**
 ```json
 {
   "mcpServers": {
     "reddit-startup-ideator": {
-      "command": "uv",
-      "args": ["run", "python", "/path/to/mcp-startup-ideator/server.py"],
-      "env": {
-        "REDDIT_CLIENT_ID": "your_client_id_here",
-        "REDDIT_CLIENT_SECRET": "your_client_secret_here",
-        "REDDIT_USER_AGENT": "MCP Startup Ideator/1.0"
-      }
-    }
-  }
-}
-```
-
-**If using standard `pip` with a virtual environment:**
-```json
-{
-  "mcpServers": {
-    "reddit-startup-ideator": {
-      "command": "python",
+      "command": "/path/to/python/interpreter",
       "args": ["/path/to/mcp-startup-ideator/server.py"],
       "env": {
         "REDDIT_CLIENT_ID": "your_client_id_here",
