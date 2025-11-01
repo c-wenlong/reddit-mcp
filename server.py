@@ -22,15 +22,54 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent, ImageContent, EmbeddedResource
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
+# Thread pool for running blocking PRAW operations
+_executor = ThreadPoolExecutor(max_workers=4)
+
+# Timeout for Reddit API operations (seconds)
+REDDIT_API_TIMEOUT = 30
 
 # Initialize Reddit client
 def get_reddit_client():
     """Initialize and return Reddit client using PRAW"""
-    return praw.Reddit(
+    reddit = praw.Reddit(
         client_id=os.getenv("REDDIT_CLIENT_ID", ""),
         client_secret=os.getenv("REDDIT_CLIENT_SECRET", ""),
         user_agent=os.getenv("REDDIT_USER_AGENT", "MCP Startup Ideator/1.0"),
+        request_timeout=REDDIT_API_TIMEOUT,
     )
+    return reddit
+
+async def run_blocking(func, *args, **kwargs):
+    """Run blocking function in thread pool with timeout"""
+    loop = asyncio.get_event_loop()
+    return await asyncio.wait_for(
+        loop.run_in_executor(_executor, func, *args, **kwargs),
+        timeout=REDDIT_API_TIMEOUT
+    )
+
+def fetch_posts_sync(subreddit, method_name, limit, query=None, sort=None, time_filter=None):
+    """Synchronous helper to fetch posts from Reddit"""
+    if method_name == "search":
+        if query:
+            return list(subreddit.search(query, limit=limit, sort=sort or "relevance"))
+        else:
+            return list(subreddit.search(limit=limit, sort=sort or "relevance"))
+    elif method_name == "top":
+        return list(subreddit.top(limit=limit, time_filter=time_filter or "week"))
+    elif method_name == "hot":
+        return list(subreddit.hot(limit=limit))
+    elif method_name == "new":
+        return list(subreddit.new(limit=limit))
+    elif method_name == "rising":
+        return list(subreddit.rising(limit=limit))
+    else:
+        return list(subreddit.hot(limit=limit))
+
+async def fetch_posts_async(subreddit, method_name, limit, query=None, sort=None, time_filter=None):
+    """Async wrapper for fetching posts"""
+    return await run_blocking(fetch_posts_sync, subreddit, method_name, limit, query, sort, time_filter)
 
 # Initialize MCP Server
 app = Server("reddit-startup-ideator")
@@ -239,21 +278,19 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             sort = arguments.get("sort", "relevance")
             time_filter = arguments.get("time_filter", "week")
             
-            if subreddit_name:
-                subreddit = reddit.subreddit(subreddit_name)
-                if sort == "relevance":
-                    posts = list(subreddit.search(query, limit=limit, sort=sort))
-                elif sort == "top":
-                    posts = list(subreddit.top(limit=limit, time_filter=time_filter))
-                elif sort == "hot":
-                    posts = list(subreddit.hot(limit=limit))
-                elif sort == "new":
-                    posts = list(subreddit.new(limit=limit))
-                else:  # comments
-                    posts = list(subreddit.search(query, limit=limit, sort="comments"))
-            else:
-                # Search across all of Reddit
-                posts = list(reddit.subreddit("all").search(query, limit=limit, sort=sort))
+            subreddit = reddit.subreddit(subreddit_name or "all")
+            
+            # Use async wrapper for Reddit API calls
+            if sort == "relevance":
+                posts = await fetch_posts_async(subreddit, "search", limit, query=query, sort=sort)
+            elif sort == "top":
+                posts = await fetch_posts_async(subreddit, "top", limit, time_filter=time_filter)
+            elif sort == "hot":
+                posts = await fetch_posts_async(subreddit, "hot", limit)
+            elif sort == "new":
+                posts = await fetch_posts_async(subreddit, "new", limit)
+            else:  # comments
+                posts = await fetch_posts_async(subreddit, "search", limit, query=query, sort="comments")
             
             results = [analyze_post_for_problems(post) for post in posts]
             results.sort(key=lambda x: x["problem_score"], reverse=True)
@@ -276,14 +313,15 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             
             subreddit = reddit.subreddit(subreddit_name)
             
+            # Use async wrapper for Reddit API calls
             if sort == "top":
-                posts = list(subreddit.top(limit=limit, time_filter=time_filter))
+                posts = await fetch_posts_async(subreddit, "top", limit, time_filter=time_filter)
             elif sort == "hot":
-                posts = list(subreddit.hot(limit=limit))
+                posts = await fetch_posts_async(subreddit, "hot", limit)
             elif sort == "new":
-                posts = list(subreddit.new(limit=limit))
+                posts = await fetch_posts_async(subreddit, "new", limit)
             else:  # rising
-                posts = list(subreddit.rising(limit=limit))
+                posts = await fetch_posts_async(subreddit, "rising", limit)
             
             analyzed_posts = [analyze_post_for_problems(post) for post in posts]
             analyzed_posts.sort(key=lambda x: x["problem_score"], reverse=True)
@@ -329,13 +367,14 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 for subreddit_name in subreddits:
                     try:
                         subreddit = reddit.subreddit(subreddit_name)
-                        posts = list(subreddit.hot(limit=limit // len(subreddits) + 5))
+                        posts = await fetch_posts_async(subreddit, "hot", limit // len(subreddits) + 5)
                         all_posts.extend(posts)
                     except Exception as e:
                         continue
             else:
                 # Get from r/all
-                all_posts = list(reddit.subreddit("all").hot(limit=limit * 2))
+                all_subreddit = reddit.subreddit("all")
+                all_posts = await fetch_posts_async(all_subreddit, "hot", limit * 2)
             
             # Filter and analyze
             filtered_posts = [
@@ -377,7 +416,11 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                     text=json.dumps({"error": "Invalid Reddit post URL"}, indent=2)
                 )]
             
-            submission = reddit.submission(id=submission_id)
+            # Fetch submission asynchronously
+            def get_submission_sync():
+                return reddit.submission(id=submission_id)
+            
+            submission = await run_blocking(get_submission_sync)
             post_analysis = analyze_post_for_problems(submission)
             
             insights = {
@@ -387,8 +430,12 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             }
             
             if include_comments:
-                submission.comments.replace_more(limit=0)
-                top_comments = submission.comments.list()[:comment_limit]
+                # Replace "more comments" and fetch asynchronously
+                def fetch_comments_sync():
+                    submission.comments.replace_more(limit=0)
+                    return submission.comments.list()[:comment_limit]
+                
+                top_comments = await run_blocking(fetch_comments_sync)
                 
                 comment_insights = []
                 for comment in top_comments:
@@ -443,10 +490,11 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 for subreddit_name in search_scope:
                     try:
                         if subreddit_name == "all":
-                            posts = list(reddit.subreddit("all").search(query, limit=posts_per_query))
+                            all_subreddit = reddit.subreddit("all")
+                            posts = await fetch_posts_async(all_subreddit, "search", posts_per_query, query=query)
                         else:
                             subreddit = reddit.subreddit(subreddit_name)
-                            posts = list(subreddit.search(query, limit=posts_per_query))
+                            posts = await fetch_posts_async(subreddit, "search", posts_per_query, query=query)
                         
                         for post in posts:
                             analysis = analyze_post_for_problems(post)
@@ -512,10 +560,21 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 text=json.dumps({"error": f"Unknown tool: {name}"}, indent=2)
             )]
     
+    except asyncio.TimeoutError:
+        return [TextContent(
+            type="text",
+            text=json.dumps({
+                "error": "Request timed out",
+                "message": f"Reddit API request exceeded {REDDIT_API_TIMEOUT} seconds. Please try again with a smaller limit or more specific query."
+            }, indent=2)
+        )]
     except Exception as e:
         return [TextContent(
             type="text",
-            text=json.dumps({"error": str(e)}, indent=2)
+            text=json.dumps({
+                "error": str(e),
+                "error_type": type(e).__name__
+            }, indent=2)
         )]
 
 async def main():
