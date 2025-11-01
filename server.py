@@ -579,6 +579,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
 async def main():
     """Run the MCP server"""
+    # Smithery wraps stdio servers with HTTP automatically
+    # The server uses stdio, and Smithery handles the HTTP layer
     async with stdio_server() as (read_stream, write_stream):
         await app.run(
             read_stream,
