@@ -1,0 +1,16 @@
+{
+  "jsonrpc": "2.0",
+  "id": 11,
+  "method": "tools/call",
+  "params": {
+    "name": "discover_problem_patterns",
+    "arguments": {
+      "queries": [
+        "I wish there was",
+        "why isn't there",
+        "frustrated with"
+      ]
+    }
+  }
+}
+

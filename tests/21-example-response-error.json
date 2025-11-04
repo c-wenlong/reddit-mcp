@@ -1,0 +1,10 @@
+{
+  "jsonrpc": "2.0",
+  "id": 13,
+  "error": {
+    "code": -32603,
+    "message": "Internal error",
+    "data": "Unknown tool: invalid_tool_name"
+  }
+}
+

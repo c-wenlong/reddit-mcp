@@ -1,0 +1,10 @@
+{
+  "jsonrpc": "2.0",
+  "id": 13,
+  "method": "tools/call",
+  "params": {
+    "name": "invalid_tool_name",
+    "arguments": {}
+  }
+}
+

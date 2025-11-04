@@ -11,6 +11,10 @@ import json
 from datetime import datetime, timedelta
 import re
 
+# Ensure unbuffered output for better stdio communication
+sys.stdout.reconfigure(line_buffering=True) if hasattr(sys.stdout, 'reconfigure') else None
+sys.stderr.reconfigure(line_buffering=True) if hasattr(sys.stderr, 'reconfigure') else None
+
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -33,9 +37,15 @@ REDDIT_API_TIMEOUT = 30
 # Initialize Reddit client
 def get_reddit_client():
     """Initialize and return Reddit client using PRAW"""
+    client_id = os.getenv("REDDIT_CLIENT_ID", "")
+    client_secret = os.getenv("REDDIT_CLIENT_SECRET", "")
+    
+    if not client_id or not client_secret:
+        raise ValueError("Reddit API credentials are required. Please set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET environment variables.")
+    
     reddit = praw.Reddit(
-        client_id=os.getenv("REDDIT_CLIENT_ID", ""),
-        client_secret=os.getenv("REDDIT_CLIENT_SECRET", ""),
+        client_id=client_id,
+        client_secret=client_secret,
         user_agent=os.getenv("REDDIT_USER_AGENT", "MCP Startup Ideator/1.0"),
         request_timeout=REDDIT_API_TIMEOUT,
     )
@@ -581,12 +591,20 @@ async def main():
     """Run the MCP server"""
     # Smithery wraps stdio servers with HTTP automatically
     # The server uses stdio, and Smithery handles the HTTP layer
-    async with stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            app.create_initialization_options()
-        )
+    try:
+        async with stdio_server() as (read_stream, write_stream):
+            # Create initialization options that accept newer protocol versions
+            init_options = app.create_initialization_options()
+            # Allow flexible protocol version handling for Smithery compatibility
+            await app.run(
+                read_stream,
+                write_stream,
+                init_options
+            )
+    except Exception as e:
+        # Log error to stderr for debugging
+        print(f"Server error: {e}", file=sys.stderr)
+        raise
 
 def run():
     """Entry point for the MCP server"""

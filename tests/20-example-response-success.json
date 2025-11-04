@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"query\": \"I wish there was a tool for\",\n  \"subreddit\": \"all\",\n  \"results_count\": 10,\n  \"posts\": [\n    {\n      \"title\": \"I wish there was a tool for managing my tasks\",\n      \"text\": \"I'm struggling with task management and need something better...\",\n      \"url\": \"https://reddit.com/r/productivity/comments/abc123/\",\n      \"subreddit\": \"productivity\",\n      \"score\": 45,\n      \"comments\": 12,\n      \"created\": \"2024-01-15T10:30:00\",\n      \"problem_keywords\": [\"wish\", \"struggling\", \"need\"],\n      \"problem_score\": 3.89,\n      \"author\": \"user123\"\n    }\n  ]\n}"
+      }
+    ]
+  }
+}
+

@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 14,
+  "method": "tools/call",
+  "params": {
+    "name": "search_reddit_problems",
+    "arguments": {
+      "limit": 10
+    }
+  }
+}
+

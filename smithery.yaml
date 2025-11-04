@@ -21,12 +21,14 @@ configSchema:
 commandFunction: |
   def get_command(config):
     import os
+    import sys
     return {
-      "command": ["python", "server.py"],
+      "command": [sys.executable, "server.py"],
       "env": {
         "REDDIT_CLIENT_ID": config.get("REDDIT_CLIENT_ID", os.getenv("REDDIT_CLIENT_ID", "")),
         "REDDIT_CLIENT_SECRET": config.get("REDDIT_CLIENT_SECRET", os.getenv("REDDIT_CLIENT_SECRET", "")),
-        "REDDIT_USER_AGENT": config.get("REDDIT_USER_AGENT", os.getenv("REDDIT_USER_AGENT", "MCP Startup Ideator/1.0"))
+        "REDDIT_USER_AGENT": config.get("REDDIT_USER_AGENT", os.getenv("REDDIT_USER_AGENT", "MCP Startup Ideator/1.0")),
+        "PYTHONUNBUFFERED": "1"
       }
     }
 

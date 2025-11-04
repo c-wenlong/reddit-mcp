@@ -1,0 +1,15 @@
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "method": "tools/call",
+  "params": {
+    "name": "get_trending_problems",
+    "arguments": {
+      "subreddits": ["entrepreneur", "startups", "smallbusiness"],
+      "limit": 50,
+      "min_score": 20,
+      "min_comments": 10
+    }
+  }
+}
+

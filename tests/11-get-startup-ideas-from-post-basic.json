@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 9,
+  "method": "tools/call",
+  "params": {
+    "name": "get_startup_ideas_from_post",
+    "arguments": {
+      "post_url": "https://www.reddit.com/r/entrepreneur/comments/example123/example_post/"
+    }
+  }
+}
+

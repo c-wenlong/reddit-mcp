@@ -1,0 +1,12 @@
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "analyze_subreddit_problems",
+    "arguments": {
+      "subreddit": "entrepreneur"
+    }
+  }
+}
+

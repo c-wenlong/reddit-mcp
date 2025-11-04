@@ -1,0 +1,13 @@
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/progress",
+  "params": {
+    "progressToken": "progress-123",
+    "progress": {
+      "type": "step",
+      "label": "Fetching Reddit posts...",
+      "percentage": 50
+    }
+  }
+}
+

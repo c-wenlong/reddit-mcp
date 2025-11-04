@@ -1,0 +1,10 @@
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "method": "tools/call",
+  "params": {
+    "name": "get_trending_problems",
+    "arguments": {}
+  }
+}
+

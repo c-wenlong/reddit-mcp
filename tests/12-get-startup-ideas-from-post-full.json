@@ -1,0 +1,14 @@
+{
+  "jsonrpc": "2.0",
+  "id": 10,
+  "method": "tools/call",
+  "params": {
+    "name": "get_startup_ideas_from_post",
+    "arguments": {
+      "post_url": "https://www.reddit.com/r/startups/comments/abc123/problem_we_face/",
+      "include_comments": true,
+      "comment_limit": 30
+    }
+  }
+}
+

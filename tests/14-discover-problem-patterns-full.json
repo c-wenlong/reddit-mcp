@@ -1,0 +1,18 @@
+{
+  "jsonrpc": "2.0",
+  "id": 12,
+  "method": "tools/call",
+  "params": {
+    "name": "discover_problem_patterns",
+    "arguments": {
+      "queries": [
+        "task management problems",
+        "email overload",
+        "meeting scheduling"
+      ],
+      "subreddits": ["productivity", "entrepreneur"],
+      "posts_per_query": 15
+    }
+  }
+}
+

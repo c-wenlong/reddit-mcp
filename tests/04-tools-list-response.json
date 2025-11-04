@@ -1,0 +1,153 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "tools": [
+      {
+        "name": "search_reddit_problems",
+        "description": "Search Reddit for posts that likely indicate problems or unmet needs. Searches Reddit posts and returns results sorted by problem indicators.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search query to find problem-related posts"
+            },
+            "subreddit": {
+              "type": "string",
+              "description": "Optional: Limit search to a specific subreddit"
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Number of posts to return (default: 20, max: 100)",
+              "default": 20
+            },
+            "sort": {
+              "type": "string",
+              "description": "Sort order: 'relevance', 'hot', 'top', 'new', 'comments'",
+              "enum": ["relevance", "hot", "top", "new", "comments"],
+              "default": "relevance"
+            },
+            "time_filter": {
+              "type": "string",
+              "description": "Time filter for 'top' sort: 'hour', 'day', 'week', 'month', 'year', 'all'",
+              "enum": ["hour", "day", "week", "month", "year", "all"],
+              "default": "week"
+            }
+          },
+          "required": ["query"]
+        }
+      },
+      {
+        "name": "analyze_subreddit_problems",
+        "description": "Analyze a subreddit to identify common problems, pain points, and unmet needs discussed by the community. Returns aggregated insights.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "subreddit": {
+              "type": "string",
+              "description": "Name of the subreddit to analyze (without r/)"
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Number of posts to analyze (default: 50, max: 100)",
+              "default": 50
+            },
+            "sort": {
+              "type": "string",
+              "description": "Sort order: 'hot', 'top', 'new', 'rising'",
+              "enum": ["hot", "top", "new", "rising"],
+              "default": "top"
+            },
+            "time_filter": {
+              "type": "string",
+              "description": "Time filter for analysis: 'hour', 'day', 'week', 'month', 'year', 'all'",
+              "enum": ["hour", "day", "week", "month", "year", "all"],
+              "default": "week"
+            }
+          },
+          "required": ["subreddit"]
+        }
+      },
+      {
+        "name": "get_trending_problems",
+        "description": "Get trending discussions across Reddit that indicate problems or pain points. Focuses on posts with high engagement.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "subreddits": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Optional: List of subreddits to search (without r/). If empty, searches all of Reddit."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Number of posts to return (default: 30, max: 100)",
+              "default": 30
+            },
+            "min_score": {
+              "type": "integer",
+              "description": "Minimum upvote score (default: 10)",
+              "default": 10
+            },
+            "min_comments": {
+              "type": "integer",
+              "description": "Minimum number of comments (default: 5)",
+              "default": 5
+            }
+          }
+        }
+      },
+      {
+        "name": "get_startup_ideas_from_post",
+        "description": "Analyze a specific Reddit post (by URL) to extract potential startup ideas and problem-solution opportunities.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "post_url": {
+              "type": "string",
+              "description": "Full URL or permalink to the Reddit post"
+            },
+            "include_comments": {
+              "type": "boolean",
+              "description": "Include top comments in analysis (default: true)",
+              "default": true
+            },
+            "comment_limit": {
+              "type": "integer",
+              "description": "Number of top comments to analyze (default: 20)",
+              "default": 20
+            }
+          },
+          "required": ["post_url"]
+        }
+      },
+      {
+        "name": "discover_problem_patterns",
+        "description": "Discover recurring problem patterns across multiple subreddits or search queries. Helps identify widespread problems that could be startup opportunities.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "queries": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "List of search queries to analyze for common patterns"
+            },
+            "subreddits": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Optional: List of subreddits to limit search to"
+            },
+            "posts_per_query": {
+              "type": "integer",
+              "description": "Number of posts to analyze per query (default: 10)",
+              "default": 10
+            }
+          },
+          "required": ["queries"]
+        }
+      }
+    ]
+  }
+}
+
